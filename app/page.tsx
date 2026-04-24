@@ -2,13 +2,14 @@ import { supabase } from '@/lib/supabase';
 import SearchField from '@/components/SearchField';
 import SortDropdown from '@/components/SortDropdown';
 import Link from 'next/link';
+import TypeFilter from '@/components/TypeFilter';
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; sort?: string }>;
+searchParams: Promise<{ q?: string; sort?: string; type?: string }>;
 }) {
-  const { q, sort } = await searchParams;
+  const { q, sort, type } = await searchParams;
 
   // 1. Build the base query
   let query = supabase
@@ -20,14 +21,18 @@ export default async function Home({
       subscriber_count,
       total_views,
       thumbnail_url,
-      deals (
+      deals!inner (
         deal_type,
-        firms ( 
-          id,
-          name 
-        )
+        acquisition_date,
+        firms ( id, name )
+      )
       )
     `);
+
+  // 2. Apply Type Filter
+  if (type && type !== 'all') {
+    query = query.eq('deals.deal_type', type);
+  }
 
   // 2. Apply search filter if 'q' exists
   if (q) {
@@ -73,6 +78,8 @@ export default async function Home({
         <div className="flex flex-col md:flex-row items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm mb-10">
           <div className="flex items-center gap-4">
             <SortDropdown />
+            <div className="h-6 w-px bg-slate-200 hidden md:block" /> {/* A small vertical divider */}
+            <TypeFilter />
           </div>
 
           <div className="w-full md:w-auto">

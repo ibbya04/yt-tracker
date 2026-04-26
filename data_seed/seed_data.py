@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -27,6 +28,20 @@ DEAL_SRC_MAPPINGS = {
     "Spotter": "https://www.spotter.com",
     "Jellysmack": "https://jellysmack.com"
 }
+LOG_FILE = "processed_channels.log"
+
+def load_processed_log():
+    """Loads the list of already processed channel names from a local file."""
+    if not os.path.exists(LOG_FILE):
+        return set()
+    with open(LOG_FILE, "r") as f:
+        # Using a set for O(1) lookup speed
+        return {line.strip() for line in f if line.strip()}
+
+def add_to_log(channel_name):
+    """Appends a successfully processed channel name to the local log."""
+    with open(LOG_FILE, "a") as f:
+        f.write(f"{channel_name}\n")
 
 def get_channel_info(name):
     """Searches YouTube for a channel name and returns the ID using yt-dlp."""
@@ -55,6 +70,8 @@ def seed_data():
         print("[ERROR] data_seed.json not found.")
         return
     
+    processed_names = load_processed_log()
+    
     for entry in data:
         firm_name = entry.get("firm_name")
         channels = entry.get("channels", [])
@@ -75,6 +92,11 @@ def seed_data():
         for channel_name in channels:
             print(f"    Adding {channel_name} to {firm_name}...")
             print(f"    Searching for {channel_name}...")
+
+            if channel_name in processed_names:
+                print(f"[SKIP] {channel_name} found in local log.")
+                continue
+            
             yt_id = get_channel_info(channel_name)
             
             if not yt_id:
@@ -100,6 +122,7 @@ def seed_data():
                 "source_url": src_url
             }, on_conflict="channel_id,firm_id").execute()
             
+            add_to_log(channel_name)
             print(f"    [OK] Added {channel_name}, ({yt_id}), {firm_name}, {deal_type}, {src_url}")
 
 if __name__ == "__main__":

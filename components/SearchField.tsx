@@ -23,7 +23,7 @@ export default function SearchField() {
   }
 
   return (
-    <div className="relative w-full max-w-md mb-8">
+    <div className="relative w-full max-w-md">
       <input
         type="text"
         placeholder="Search channels..."

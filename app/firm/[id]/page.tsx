@@ -11,6 +11,7 @@ export default async function FirmPage({ params }: { params: Promise<{ id: strin
     .select(`
       *,
       deals (
+        id,
         deal_type,
         acquisition_date,
         source_url,
@@ -51,9 +52,23 @@ export default async function FirmPage({ params }: { params: Promise<{ id: strin
           {firm.deals.map((deal: any) => (
             <div key={deal.channels.id} className="bg-white p-6 rounded-lg border border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <img src={deal.channels.thumbnail_url} className="w-12 h-12 rounded-full" alt="" />
+                <img
+                      src={deal.channels.thumbnail_url}
+                      className="w-12 h-12 rounded-full border border-slate-100 shadow-sm"
+                      alt={deal.channels.channel_name}
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                    />
                 <div>
-                  <h3 className="font-bold text-slate-900">{deal.channels.channel_name}</h3>
+                  <a
+                        href={`https://youtube.com/channel/${deal.channels.yt_channel_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center gap-1"
+                      >
+                        <h3 className="font-bold text-slate-900">{deal.channels.channel_name}</h3>
+                        <span className="text-slate-300 group-hover:text-red-400 text-xs">↗</span>
+                      </a>
                   <p className="text-sm text-slate-500">{deal.deal_type} • Acquired {deal.acquisition_date}</p>
                 </div>
               </div>

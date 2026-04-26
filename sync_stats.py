@@ -53,17 +53,26 @@ def sync_youtube_stats():
 
     # --- STEP 2: FETCH FROM YOUTUBE ---
     logger.info(f"Requesting stats for {len(channel_ids)} channels from YouTube...")
-    try:
-        yt_request = youtube.channels().list(
-            part="statistics,snippet",
-            id=",".join(channel_ids)
-        )
-        yt_response = yt_request.execute()
-        yt_items = yt_response.get("items", [])
-        logger.info(f"Received data for {len(yt_items)} channels from YouTube.")
-    except Exception as e:
-        logger.error(f"YouTube API request failed: {e}")
-        return
+
+    yt_items = []
+    # Process in chunks of 50
+    for i in range(0, len(channel_ids), 50):
+        chunk = channel_ids[i:i + 50]
+        logger.info(f"  → Fetching batch: {i+1} to {min(i + 50, len(channel_ids))}")
+        
+        try:
+            yt_request = youtube.channels().list(
+                part="statistics,snippet",
+                id=",".join(chunk)
+            )
+            yt_response = yt_request.execute()
+            yt_items.extend(yt_response.get("items", []))
+        except Exception as e:
+            logger.error(f"YouTube API request failed for batch starting at index {i}: {e}")
+            # Decide if you want to 'return' or 'continue' to the next batch
+            continue
+
+    logger.info(f"Received data for {len(yt_items)} total channels from YouTube.")
     
     found_ids = [item["id"] for item in yt_items]
     missing_ids = [id for id in channel_ids if id not in found_ids]

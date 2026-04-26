@@ -64,16 +64,6 @@ searchParams: Promise<{ q?: string; sort?: string; type?: string }>;
     <main className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-5xl mx-auto">
 
-        {/*Title section*/}
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
-            Corporate YouTube Tracker
-          </h1>
-          <p className="text-slate-500 text-base mt-2 font-medium">
-            Tracking private equity acquisitions in the creator economy.
-          </p>
-        </div>
-
         {/*Toolbar section*/}
         <div className="flex flex-col md:flex-row items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm mb-10">
           <div className="flex items-center gap-4">
@@ -109,7 +99,7 @@ searchParams: Promise<{ q?: string; sort?: string; type?: string }>;
                     />
                     <div className="overflow-hidden">
                       <a
-                        href={`https://youtube.com/channel/${channel.youtube_id}`}
+                        href={`https://youtube.com/channel/${channel.yt_channel_id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-1"
